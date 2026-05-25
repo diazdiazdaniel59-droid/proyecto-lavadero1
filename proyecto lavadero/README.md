@@ -99,7 +99,7 @@ Comprueba en GitHub que existan:
 | Build Command | `npm run build` |
 | Output Directory | **`dist`** |
 | Install Command | *(vacío)* |
-| Root Directory | *(vacío)* |
+| Root Directory | **`proyecto lavadero`** |
 
 El `vercel.json` del repo ya define esto; tras el push, redeploy.
 
