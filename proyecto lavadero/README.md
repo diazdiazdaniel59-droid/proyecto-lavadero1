@@ -77,7 +77,7 @@ cd "c:\Users\danie\Desktop\proyecto lavadero"
 git add .
 git commit -m "fix: build Vercel"
 git branch -M main
-git remote add origin https://github.com/TU_USUARIO/TU_REPO.git
+git remote add origin https://github.com/diazdiazdaniel59-droid/proyecto-lavadero1.git
 git push -u origin main
 ```
 
@@ -128,7 +128,7 @@ git init
 git add .
 git commit -m "Initial commit: prototipo lavadero"
 git branch -M main
-git remote add origin https://github.com/TU_USUARIO/TU_REPO.git
+git remote add origin https://github.com/diazdiazdaniel59-droid/proyecto-lavadero1.git
 git push -u origin main
 ```
 
