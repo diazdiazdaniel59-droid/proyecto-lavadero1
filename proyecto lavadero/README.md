@@ -27,14 +27,14 @@ Prototipo funcional para gestionar un lavadero de vehículos: cola de trabajo, p
 ### Windows
 
 1. Clona o descarga el repositorio.
-2. Doble clic en `ABRIR.bat` o en `index.html`.
+2. Doble clic en `ABRIR.bat` o abre `public/index.html`.
 
 ### Cualquier sistema
 
-Abre `index.html` con tu navegador, o sirve la carpeta con un servidor estático:
+Abre `public/index.html` con tu navegador, o sirve la carpeta `public`:
 
 ```bash
-# Ejemplo con Python 3
+cd public
 python -m http.server 8080
 # Luego visita http://localhost:8080
 ```
@@ -51,14 +51,63 @@ python -m http.server 8080
 
 ```
 .
-├── index.html   # Aplicación completa (HTML + CSS + JavaScript)
-├── ABRIR.bat    # Atajo para abrir en Windows
+├── public/
+│   └── index.html   # App (HTML + CSS + JavaScript) — esto publica Vercel
+├── vercel.json      # Output Directory: public
+├── package.json
+├── ABRIR.bat        # Abre public/index.html en Windows
 ├── README.md
 ├── LICENSE
 └── .gitignore
 ```
 
-No hay build ni pasos de compilación: el archivo `index.html` es autocontenido.
+## Publicar en Vercel (error 404)
+
+### Causa más común
+
+El **404** aparece cuando en GitHub **no está** el código de la app (solo README o repo vacío).  
+En tu PC los archivos pueden existir, pero si **no hiciste `git push`**, Vercel no tiene nada que publicar.
+
+### 1. Subir a GitHub (OBLIGATORIO)
+
+Doble clic en **`SUBIR-A-GITHUB.bat`** o en terminal:
+
+```bash
+cd "c:\Users\danie\Desktop\proyecto lavadero"
+git add .
+git commit -m "fix: build Vercel"
+git branch -M main
+git remote add origin https://github.com/TU_USUARIO/TU_REPO.git
+git push -u origin main
+```
+
+Comprueba en GitHub que existan:
+
+- `index.html` (raíz)
+- `public/index.html`
+- `vercel.json`
+- `package.json`
+- `scripts/build.js`
+
+### 2. Vercel — Build Settings
+
+**Settings → Build & Development Settings** → **Override**:
+
+| Campo | Valor |
+|--------|--------|
+| Framework Preset | **Other** |
+| Build Command | `npm run build` |
+| Output Directory | **`dist`** |
+| Install Command | *(vacío)* |
+| Root Directory | *(vacío)* |
+
+El `vercel.json` del repo ya define esto; tras el push, redeploy.
+
+### 3. Redeploy sin caché
+
+**Deployments** → último deploy → **Redeploy** → desactiva **Use existing Build Cache**.
+
+En los logs del deploy debe aparecer: `Build listo: dist/index.html`.
 
 ## Publicar en GitHub Pages
 
@@ -94,7 +143,7 @@ Los datos viven en el navegador del equipo. Si borras datos del sitio o usas mod
 
 ## Moneda
 
-Por defecto los precios se muestran en pesos colombianos (formato `$15.000`). Para cambiar la moneda, edita la función `dinero()` dentro de `index.html`.
+Por defecto los precios se muestran en pesos colombianos (formato `$15.000`). Para cambiar la moneda, edita la función `dinero()` dentro de `public/index.html`.
 
 ## Licencia
 
