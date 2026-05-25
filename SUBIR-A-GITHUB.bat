@@ -3,37 +3,42 @@ chcp 65001 >nul
 cd /d "%~dp0"
 
 echo ============================================
-echo  SUBIR PROYECTO A GITHUB (obligatorio)
+echo  SUBIR A GITHUB
 echo ============================================
 echo.
 
 where git >nul 2>&1
 if errorlevel 1 (
-  echo ERROR: Git no esta instalado.
-  echo Instalalo desde https://git-scm.com/download/win
+  echo ERROR: Instala Git desde https://git-scm.com/download/win
   pause
   exit /b 1
 )
 
-echo Archivos que se subiran:
-git status -s
+echo 1. Crear repo en GitHub (solo la primera vez):
+echo    https://github.com/new
+echo    Nombre: proyecto-lavadero
+echo    NO marques "Add a README"
 echo.
+echo 2. Luego pulsa una tecla para hacer PUSH...
+pause >nul
 
-set /p CONFIRM=¿Hacer commit y mostrar comando push? (S/N): 
-if /i not "%CONFIRM%"=="S" exit /b 0
-
-git add .
-git commit -m "fix: build Vercel con dist e index.html"
 git branch -M main
+git remote remove origin 2>nul
+git remote add origin https://github.com/diazdiazdaniel59/proyecto-lavadero.git
 
 echo.
-echo ============================================
-echo  AHORA ejecuta esto (cambia TU_USUARIO y TU_REPO):
-echo.
-echo  git remote add origin https://github.com/TU_USUARIO/TU_REPO.git
-echo  git push -u origin main
-echo.
-echo  Si ya tienes remote:
-echo  git push -u origin main
-echo ============================================
+echo Subiendo a GitHub...
+git push -u origin main
+
+if errorlevel 1 (
+  echo.
+  echo ERROR en el push. Prueba:
+  echo   - Crear el repo en github.com/new
+  echo   - Iniciar sesion: gh auth login
+  echo   - O usar GitHub Desktop
+) else (
+  echo.
+  echo LISTO. Codigo subido a GitHub.
+)
+
 pause
