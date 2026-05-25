@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Lavadero Pro — Gestión de cola, servicios, cobros e historial para lavadero de vehículos.">
+  <meta name="theme-color" content="#070d18">
+  <title>Lavadero Pro</title>
+  <style>
+    :root {
+      --bg: #070d18;
+      --bg2: #0d1628;
+      --surface: rgba(12, 20, 36, 0.82);
+      --surface2: rgba(18, 28, 48, 0.92);
+      --border: rgba(120, 160, 220, 0.12);
+      --text: #f0f4fc;
+      --muted: #8ba3c7;
+      --cyan: #22d3ee;
+      --blue: #3b82f6;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #f87171;
+      --radius: 16px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      --glow: 0 0 40px rgba(34, 211, 238, 0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", "Inter", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Fondo animado */
+    .bg-motion {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .bg-base {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(160deg, #050a14 0%, #0a1628 40%, #071018 100%);
+    }
+    .bg-mesh {
+      position: absolute;
+      inset: -50%;
+      width: 200%;
+      height: 200%;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(14, 165, 233, 0.18) 0%, transparent 42%),
+        radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.14) 0%, transparent 40%),
+        radial-gradient(circle at 60% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 45%),
+        radial-gradient(circle at 10% 70%, rgba(59, 130, 246, 0.12) 0%, transparent 38%);
+      animation: meshDrift 28s ease-in-out infinite alternate;
+    }
+    @keyframes meshDrift {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(-4%, -3%) rotate(3deg); }
+    }
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0.55;
+      will-change: transform;
+    }
+    .bg-orb-1 {
+      width: min(55vw, 480px);
+      height: min(55vw, 480px);
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.45) 0%, transparent 70%);
+      top: -12%;
+      left: -8%;
+      animation: orbFloat1 22s ease-in-out infinite;
+    }
+    .bg-orb-2 {
+      width: min(50vw, 420px);
+      height: min(50vw, 420px);
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%);
+      top: 35%;
+      right: -12%;
+      animation: orbFloat2 26s ease-in-out infinite;
+    }
+    .bg-orb-3 {
+      width: min(45vw, 380px);
+      height: min(45vw, 380px);
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.35) 0%, transparent 70%);
+      bottom: -8%;
+      left: 25%;
+      animation: orbFloat3 24s ease-in-out infinite;
+    }
+    @keyframes orbFloat1 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(12vw, 8vh) scale(1.08); }
+      66% { transform: translate(6vw, 18vh) scale(0.95); }
+    }
+    @keyframes orbFloat2 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      40% { transform: translate(-14vw, 6vh) scale(1.1); }
+      70% { transform: translate(-8vw, -10vh) scale(0.92); }
+    }
+    @keyframes orbFloat3 {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(10vw, -12vh) scale(1.06); }
+    }
+    .bg-shine {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        105deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.02) 45%,
+        rgba(34, 211, 238, 0.04) 50%,
+        transparent 55%
+      );
+      background-size: 200% 100%;
+      animation: shineSweep 12s ease-in-out infinite;
+    }
+    @keyframes shineSweep {
+      0%, 100% { background-position: 200% 0; }
+      50% { background-position: -100% 0; }
+    }
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(120, 180, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120, 180, 255, 0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 85% 75% at 50% 45%, black 15%, transparent 75%);
+      animation: gridPulse 8s ease-in-out infinite;
+    }
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 0.55; }
+    }
+    .bg-waves {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 220px;
+      opacity: 0.35;
+    }
+    .bg-waves svg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 200%;
+      height: 100%;
+      animation: waveSlide 18s linear infinite;
+    }
+    .bg-waves .wave-2 {
+      animation-duration: 24s;
+      animation-direction: reverse;
+      opacity: 0.6;
+      bottom: 8px;
+    }
+    .bg-waves .wave-3 {
+      animation-duration: 30s;
+      opacity: 0.35;
+      bottom: 16px;
+    }
+    @keyframes waveSlide {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .bg-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 90% 80% at 50% 40%, transparent 30%, rgba(5, 10, 20, 0.75) 100%);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .bg-mesh, .bg-orb, .bg-shine, .bg-grid, .bg-waves svg {
+        animation: none !important;
+      }
+      .bg-orb { opacity: 0.35; }
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 1.25rem 1.25rem 3rem;
+    }
+    header.top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      padding: 1.25rem 1.5rem;
+      background: var(--surface);
+      backdrop-filter: blur(16px) saturate(1.2);
+      -webkit-backdrop-filter: blur(16px) saturate(1.2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow), var(--glow);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      box-shadow: 0 4px 20px rgba(14, 165, 233, 0.4);
+    }
+    header.top h1 {
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(90deg, #fff, #a5f3fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    header.top p { color: var(--muted); font-size: 0.88rem; margin-top: 0.15rem; }
+    .tabs {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      padding: 0.45rem;
+      background: var(--surface);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+    .tab {
+      flex: 1;
+      min-width: 100px;
+      padding: 0.7rem 0.85rem;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+    }
+    .tab .ico { font-size: 1.15rem; opacity: 0.85; }
+    .tab:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+    .tab.on {
+      color: #fff;
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      box-shadow: 0 4px 16px rgba(6, 182, 212, 0.35);
+    }
+    .panel { display: none; animation: fadeUp 0.3s ease; }
+    .panel.on { display: block; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .card {
+      position: relative;
+      overflow: hidden;
+      background: var(--surface);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.15rem 1.15rem 1.15rem 1rem;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover { transform: translateY(-2px); border-color: rgba(34, 211, 238, 0.25); }
+    .card::after {
+      content: "";
+      position: absolute;
+      top: 0; right: 0;
+      width: 60px; height: 60px;
+      border-radius: 0 0 0 100%;
+      opacity: 0.12;
+    }
+    .card-cola::after { background: var(--amber); }
+    .card-lavado::after { background: var(--blue); }
+    .card-listo::after { background: var(--green); }
+    .card-money::after { background: var(--cyan); }
+    .card .ico-stat {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    .card span { display: block; font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+    .card strong { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.02em; }
+    .card-cola strong { color: #fbbf24; }
+    .card-lavado strong { color: #60a5fa; }
+    .card-listo strong { color: #34d399; }
+    .card-money {
+      border-color: rgba(16, 185, 129, 0.3);
+      background: linear-gradient(145deg, rgba(6, 78, 59, 0.35), var(--surface));
+    }
+    .card-money strong { color: #6ee7b7; font-size: 1.5rem; }
+    .box {
+      background: var(--surface);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow);
+    }
+    .box-head {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .box-head .ico { font-size: 1.35rem; }
+    .box h2 { font-size: 1.15rem; font-weight: 700; margin: 0; }
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+      margin-top: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    label:first-of-type { margin-top: 0; }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font: inherit;
+      font-size: 1rem;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
+    }
+    .price-box {
+      margin-top: 1.25rem;
+      padding: 1.1rem 1.25rem;
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.4), rgba(14, 116, 144, 0.2));
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .price-box span { color: var(--muted); font-size: 0.9rem; }
+    .price-box strong { color: #6ee7b7; font-size: 1.5rem; font-weight: 700; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.7rem 1.25rem;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-main {
+      background: linear-gradient(135deg, #0284c7, #06b6d4);
+      color: #fff;
+      width: 100%;
+      margin-top: 1.25rem;
+      padding: 0.9rem;
+      font-size: 1rem;
+      box-shadow: 0 4px 20px rgba(6, 182, 212, 0.35);
+    }
+    .btn-main:hover { filter: brightness(1.1); }
+    .btn-sm { padding: 0.45rem 0.75rem; font-size: 0.78rem; margin: 0.2rem 0.25rem 0 0; }
+    .btn-ok { background: linear-gradient(135deg, #059669, #10b981); color: #fff; }
+    .btn-next { background: linear-gradient(135deg, #2563eb, #3b82f6); color: #fff; }
+    .btn-back { background: rgba(55, 65, 81, 0.8); color: #e5e7eb; }
+    .btn-del { background: rgba(127, 29, 29, 0.25); color: #fca5a5; border: 1px solid rgba(248, 113, 113, 0.4); }
+    .btn-ghost {
+      background: rgba(255,255,255,0.06);
+      color: #cbd5e1;
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.1); }
+    .btn-demo {
+      background: rgba(34, 211, 238, 0.12);
+      color: var(--cyan);
+      border: 1px solid rgba(34, 211, 238, 0.35);
+    }
+    .btn-demo:hover { background: rgba(34, 211, 238, 0.2); }
+    .cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      align-items: start;
+    }
+    @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+    .col {
+      background: var(--surface);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      min-height: 200px;
+      box-shadow: var(--shadow);
+    }
+    .col-cola { border-top: 3px solid #f59e0b; }
+    .col-lavado { border-top: 3px solid #3b82f6; }
+    .col-listo { border-top: 3px solid #10b981; }
+    .col h3 {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      margin-bottom: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .col-cola h3 { color: #fcd34d; }
+    .col-lavado h3 { color: #93c5fd; }
+    .col-listo h3 { color: #6ee7b7; }
+    .col h3 .n {
+      background: var(--bg2);
+      padding: 0.2rem 0.55rem;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      color: var(--text);
+    }
+    .veh {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 0.65rem;
+      border-left: 4px solid var(--blue);
+      transition: box-shadow 0.2s;
+    }
+    .veh:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+    .veh-cola { border-left-color: #f59e0b; }
+    .veh-lavado { border-left-color: #3b82f6; }
+    .veh-listo { border-left-color: #10b981; }
+    .veh-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      margin-bottom: 0.5rem;
+    }
+    .veh-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+    .veh .placa { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.04em; }
+    .veh .info { font-size: 0.8rem; color: var(--muted); margin-top: 0.15rem; }
+    .veh .precio {
+      display: inline-block;
+      margin: 0.5rem 0 0.65rem;
+      padding: 0.25rem 0.6rem;
+      background: rgba(59, 130, 246, 0.15);
+      color: #93c5fd;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border-radius: 6px;
+    }
+    .veh .nota {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-style: italic;
+      margin-bottom: 0.5rem;
+      padding: 0.4rem 0.5rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 6px;
+    }
+    .veh-actions { display: flex; flex-wrap: wrap; gap: 0.2rem; }
+    .empty {
+      color: var(--muted);
+      font-size: 0.85rem;
+      text-align: center;
+      padding: 2rem 1rem;
+      background: rgba(0,0,0,0.15);
+      border-radius: 10px;
+      border: 1px dashed var(--border);
+    }
+    .empty-big { padding: 2.5rem; font-size: 0.95rem; }
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    thead { background: var(--bg2); }
+    th, td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    th {
+      color: var(--muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+    }
+    tbody tr:hover td { background: rgba(255,255,255,0.03); }
+    tbody tr:last-child td { border-bottom: none; }
+    .tag {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .tag-wait { background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.35); }
+    .tag-wash { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.35); }
+    .tag-ready { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.35); }
+    .tag-paid { background: rgba(107, 114, 128, 0.2); color: #9ca3af; border: 1px solid rgba(107, 114, 128, 0.3); }
+    .svc-row {
+      display: grid;
+      grid-template-columns: 1fr 130px;
+      gap: 0.65rem;
+      margin-bottom: 0.65rem;
+      align-items: center;
+    }
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: #fff;
+      padding: 0.85rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 12px 40px rgba(16, 185, 129, 0.4);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .toast.show { display: block; animation: pop 0.3s ease; }
+    @keyframes pop {
+      from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 8, 18, 0.75);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+      padding: 1rem;
+    }
+    .overlay.show { display: flex; animation: fadeIn 0.2s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .modal {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1.75rem;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+      animation: modalIn 0.25s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #059669, #10b981);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .modal h3 { margin-bottom: 0.35rem; font-size: 1.2rem; }
+    .modal p { color: var(--muted); margin-bottom: 1.25rem; font-size: 0.95rem; }
+    .modal .actions { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.25rem; }
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.1rem;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 0.5rem;
+      transition: border-color 0.2s;
+    }
+    .list-item:hover { border-color: rgba(34, 211, 238, 0.2); }
+    .list-item .placa-txt { font-weight: 700; font-size: 1.05rem; letter-spacing: 0.03em; }
+    .list-item .sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+    .list-item .right { text-align: right; }
+    .list-item .monto { font-weight: 700; color: var(--cyan); margin-top: 0.35rem; font-size: 0.95rem; }
+    .hint {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      background: rgba(59, 130, 246, 0.08);
+      border-left: 3px solid var(--blue);
+      border-radius: 0 10px 10px 0;
+    }
+    .err-banner {
+      background: rgba(127, 29, 29, 0.5);
+      color: #fecaca;
+      padding: 0.85rem 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(248, 113, 113, 0.4);
+      display: none;
+    }
+    .err-banner.show { display: block; }
+    .form-grid { display: grid; gap: 0; }
+    @media (min-width: 600px) {
+      .form-grid-2 { grid-template-columns: 1fr 1fr; gap: 1rem; }
+      .form-grid-2 label { margin-top: 0; }
+      .form-grid-2 > div:first-child label { margin-top: 0; }
+      .form-grid-2 > div:nth-child(2) label { margin-top: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-motion" aria-hidden="true">
+    <div class="bg-base"></div>
+    <div class="bg-mesh"></div>
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+    <div class="bg-shine"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-waves">
+      <svg class="wave-1" viewBox="0 0 1440 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill="rgba(34, 211, 238, 0.12)" d="M0,64 C240,100 480,20 720,56 C960,92 1200,36 1440,64 L1440,120 L0,120 Z"/>
+      </svg>
+      <svg class="wave-2" viewBox="0 0 1440 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill="rgba(59, 130, 246, 0.1)" d="M0,48 C360,88 720,8 1080,52 C1260,72 1380,40 1440,48 L1440,100 L0,100 Z"/>
+      </svg>
+      <svg class="wave-3" viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill="rgba(16, 185, 129, 0.08)" d="M0,40 C480,70 960,10 1440,44 L1440,80 L0,80 Z"/>
+      </svg>
+    </div>
+    <div class="bg-vignette"></div>
+  </div>
+
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">💧</div>
+        <div>
+          <h1>Lavadero Pro</h1>
+          <p id="fecha-hoy"></p>
+        </div>
+      </div>
+      <button type="button" class="btn btn-demo" id="btn-demo">✨ Cargar demo</button>
+    </header>
+
+    <div id="err-banner" class="err-banner"></div>
+
+    <nav class="tabs" id="tabs">
+      <button type="button" class="tab on" data-tab="inicio"><span class="ico">📊</span>Inicio</button>
+      <button type="button" class="tab" data-tab="nuevo"><span class="ico">➕</span>Nuevo</button>
+      <button type="button" class="tab" data-tab="cola"><span class="ico">🚗</span>Cola</button>
+      <button type="button" class="tab" data-tab="historial"><span class="ico">📋</span>Historial</button>
+      <button type="button" class="tab" data-tab="precios"><span class="ico">💰</span>Precios</button>
+    </nav>
+
+    <!-- INICIO -->
+    <section id="panel-inicio" class="panel on">
+      <p class="section-title">Resumen del día</p>
+      <div class="cards">
+        <div class="card card-cola">
+          <span class="ico-stat">⏳</span>
+          <span>En cola</span>
+          <strong id="s-cola">0</strong>
+        </div>
+        <div class="card card-lavado">
+          <span class="ico-stat">🫧</span>
+          <span>En lavado</span>
+          <strong id="s-lavado">0</strong>
+        </div>
+        <div class="card card-listo">
+          <span class="ico-stat">✨</span>
+          <span>Listos</span>
+          <strong id="s-listos">0</strong>
+        </div>
+        <div class="card card-money">
+          <span class="ico-stat">💵</span>
+          <span>Ingresos hoy</span>
+          <strong id="s-ingresos">$0</strong>
+        </div>
+      </div>
+      <div class="box">
+        <div class="box-head">
+          <span class="ico">🕐</span>
+          <h2>Actividad reciente</h2>
+        </div>
+        <div id="lista-reciente"></div>
+      </div>
+    </section>
+
+    <!-- NUEVO -->
+    <section id="panel-nuevo" class="panel">
+      <div class="box">
+        <div class="box-head">
+          <span class="ico">➕</span>
+          <h2>Registrar vehículo</h2>
+        </div>
+        <form id="form-nuevo" class="form-grid">
+          <label for="inp-placa">Placa o identificación *</label>
+          <input type="text" id="inp-placa" placeholder="Ej: ABC123" required maxlength="15" autocomplete="off">
+
+          <div class="form-grid-2">
+            <div>
+              <label for="inp-tipo">Tipo de vehículo</label>
+              <select id="inp-tipo">
+                <option value="auto">🚗 Auto</option>
+                <option value="suv">🚙 SUV / camioneta (+20%)</option>
+                <option value="moto">🏍 Moto (-30%)</option>
+              </select>
+            </div>
+            <div>
+              <label for="inp-servicio">Servicio</label>
+              <select id="inp-servicio"></select>
+            </div>
+          </div>
+
+          <div class="price-box">
+            <span>Total a cobrar</span>
+            <strong id="inp-precio">$0</strong>
+          </div>
+
+          <label for="inp-notas">Notas (opcional)</label>
+          <textarea id="inp-notas" rows="2" placeholder="Ej: aspirar asientos, manchas en capó..."></textarea>
+
+          <button type="submit" class="btn btn-main">✓ Registrar en cola</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- COLA -->
+    <section id="panel-cola" class="panel">
+      <p class="hint">💡 Usa los botones en cada tarjeta para avanzar el vehículo o registrar el cobro.</p>
+      <div class="cols" id="kanban"></div>
+    </section>
+
+    <!-- HISTORIAL -->
+    <section id="panel-historial" class="panel">
+      <div class="box">
+        <div class="box-head">
+          <span class="ico">📋</span>
+          <h2>Historial de servicios</h2>
+        </div>
+        <label for="inp-buscar">Buscar por placa</label>
+        <input type="search" id="inp-buscar" placeholder="🔍 Escribe la placa...">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Fecha</th><th>Placa</th><th>Servicio</th><th>Total</th><th>Estado</th></tr>
+            </thead>
+            <tbody id="tabla-historial"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRECIOS -->
+    <section id="panel-precios" class="panel">
+      <div class="box">
+        <div class="box-head">
+          <span class="ico">💰</span>
+          <h2>Lista de precios</h2>
+        </div>
+        <p class="hint">Precios base para auto. SUV +20% · Moto −30%. Guarda los cambios al terminar.</p>
+        <div id="lista-precios"></div>
+        <button type="button" class="btn btn-main" id="btn-guardar-precios">💾 Guardar precios</button>
+        <button type="button" class="btn btn-ghost" id="btn-reset-precios" style="width:100%;margin-top:0.65rem;">↺ Restaurar predeterminados</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal cobro -->
+  <div class="overlay" id="modal-cobro">
+    <div class="modal">
+      <div class="modal-icon">💵</div>
+      <h3>Cobrar servicio</h3>
+      <p id="modal-texto"></p>
+      <label for="inp-pago">Método de pago</label>
+      <select id="inp-pago">
+        <option value="Efectivo">💵 Efectivo</option>
+        <option value="Tarjeta">💳 Tarjeta</option>
+        <option value="Transferencia">📱 Transferencia</option>
+      </select>
+      <div class="actions">
+        <button type="button" class="btn btn-ghost" id="btn-cerrar-cobro">Cancelar</button>
+        <button type="button" class="btn btn-ok" id="btn-confirmar-cobro">✓ Confirmar cobro</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+(function () {
+  'use strict';
+
+  var KEY_JOBS = 'lavadero_v2_jobs';
+  var KEY_SERVICES = 'lavadero_v2_services';
+
+  var MULT = { auto: 1, suv: 1.2, moto: 0.7 };
+
+  var SERVICIOS_DEF = [
+    { id: 'basico', nombre: 'Lavado básico', precio: 15000 },
+    { id: 'completo', nombre: 'Lavado completo', precio: 25000 },
+    { id: 'encerado', nombre: 'Encerado', precio: 35000 },
+    { id: 'interior', nombre: 'Limpieza interior', precio: 20000 },
+    { id: 'premium', nombre: 'Combo premium', precio: 45000 }
+  ];
+
+  var ESTADOS = [
+    { id: 'cola', titulo: 'En cola' },
+    { id: 'lavado', titulo: 'En lavado' },
+    { id: 'listo', titulo: 'Listo — cobrar' }
+  ];
+
+  var servicios = [];
+  var trabajos = [];
+  var cobrandoId = null;
+
+  function guardar(key, data) {
+    try {
+      localStorage.setItem(key, JSON.stringify(data));
+      return true;
+    } catch (e) {
+      mostrarError('No se pudo guardar. Prueba otro navegador o desactiva modo privado.');
+      return false;
+    }
+  }
+
+  function cargar(key, def) {
+    try {
+      var raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : def;
+    } catch (e) {
+      return def;
+    }
+  }
+
+  function id() {
+    return 'j' + Date.now() + Math.floor(Math.random() * 9999);
+  }
+
+  function dinero(n) {
+    return '$' + Number(n || 0).toLocaleString('es');
+  }
+
+  function fechaTexto(iso) {
+    var d = new Date(iso);
+    return d.toLocaleDateString('es') + ' ' + d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function esHoy(iso) {
+    var d = new Date(iso);
+    var h = new Date();
+    return d.toDateString() === h.toDateString();
+  }
+
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s == null ? '' : String(s);
+    return d.innerHTML;
+  }
+
+  function toast(msg) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.classList.remove('show'); }, 2500);
+  }
+
+  function mostrarError(msg) {
+    var b = document.getElementById('err-banner');
+    b.textContent = msg;
+    b.classList.add('show');
+  }
+
+  function nombreServicio(sid) {
+    for (var i = 0; i < servicios.length; i++) {
+      if (servicios[i].id === sid) return servicios[i].nombre;
+    }
+    return sid;
+  }
+
+  function calcularPrecio(sid, tipo) {
+    var s = null;
+    for (var i = 0; i < servicios.length; i++) {
+      if (servicios[i].id === sid) { s = servicios[i]; break; }
+    }
+    if (!s) return 0;
+    return Math.round(s.precio * (MULT[tipo] || 1));
+  }
+
+  function etiquetaTipo(t) {
+    return { auto: 'Auto', suv: 'SUV', moto: 'Moto' }[t] || t;
+  }
+
+  function iconoTipo(t) {
+    return { auto: '🚗', suv: '🚙', moto: '🏍' }[t] || '🚗';
+  }
+
+  var CLASE_COL = { cola: 'col-cola', lavado: 'col-lavado', listo: 'col-listo' };
+
+  function etiquetaEstado(e) {
+    return { cola: 'En cola', lavado: 'En lavado', listo: 'Listo', cobrado: 'Cobrado' }[e] || e;
+  }
+
+  function claseTag(e) {
+    if (e === 'cola') return 'tag-wait';
+    if (e === 'lavado') return 'tag-wash';
+    if (e === 'listo') return 'tag-ready';
+    return 'tag-paid';
+  }
+
+  // --- Pestañas ---
+  function irTab(tab) {
+    var tabs = document.querySelectorAll('.tab');
+    var panels = document.querySelectorAll('.panel');
+    for (var i = 0; i < tabs.length; i++) {
+      tabs[i].classList.toggle('on', tabs[i].getAttribute('data-tab') === tab);
+    }
+    for (var j = 0; j < panels.length; j++) {
+      panels[j].classList.toggle('on', panels[j].id === 'panel-' + tab);
+    }
+    if (tab === 'inicio') pintarInicio();
+    if (tab === 'cola') pintarCola();
+    if (tab === 'historial') pintarHistorial();
+    if (tab === 'precios') pintarPrecios();
+    if (tab === 'nuevo') actualizarPrecioForm();
+  }
+
+  // --- Inicio ---
+  function pintarInicio() {
+    var cola = 0, lavado = 0, listo = 0, ingresos = 0;
+    for (var i = 0; i < trabajos.length; i++) {
+      var t = trabajos[i];
+      if (t.estado === 'cola') cola++;
+      if (t.estado === 'lavado') lavado++;
+      if (t.estado === 'listo') listo++;
+      if (t.estado === 'cobrado' && t.cobradoEn && esHoy(t.cobradoEn)) {
+        ingresos += t.precio;
+      }
+    }
+    document.getElementById('s-cola').textContent = cola;
+    document.getElementById('s-lavado').textContent = lavado;
+    document.getElementById('s-listos').textContent = listo;
+    document.getElementById('s-ingresos').textContent = dinero(ingresos);
+
+    var ordenados = trabajos.slice().sort(function (a, b) {
+      return new Date(b.creadoEn) - new Date(a.creadoEn);
+    }).slice(0, 8);
+
+    var html = '';
+    if (!ordenados.length) {
+      html = '<p class="empty empty-big">📭 Sin registros aún<br><br>Ve a <b>Nuevo</b> o pulsa <b>Cargar demo</b> arriba.</p>';
+    } else {
+      for (var j = 0; j < ordenados.length; j++) {
+        var x = ordenados[j];
+        html += '<div class="list-item">' +
+          '<div><div class="placa-txt">' + iconoTipo(x.tipo) + ' ' + esc(x.placa) + '</div>' +
+          '<div class="sub">' + esc(nombreServicio(x.servicioId)) + ' · ' + etiquetaTipo(x.tipo) + '</div></div>' +
+          '<div class="right"><span class="tag ' + claseTag(x.estado) + '">' + etiquetaEstado(x.estado) + '</span>' +
+          '<div class="monto">' + dinero(x.precio) + '</div></div></div>';
+      }
+    }
+    document.getElementById('lista-reciente').innerHTML = html;
+  }
+
+  // --- Cola (delegación de eventos) ---
+  function pintarCola() {
+    var html = '';
+    for (var c = 0; c < ESTADOS.length; c++) {
+      var est = ESTADOS[c].id;
+      var lista = [];
+      for (var i = 0; i < trabajos.length; i++) {
+        if (trabajos[i].estado === est) lista.push(trabajos[i]);
+      }
+      lista.sort(function (a, b) { return new Date(a.creadoEn) - new Date(b.creadoEn); });
+
+      html += '<div class="col ' + (CLASE_COL[est] || '') + '"><h3>' + ESTADOS[c].titulo + ' <span class="n">' + lista.length + '</span></h3>';
+
+      if (!lista.length) {
+        html += '<p class="empty">— Sin vehículos —</p>';
+      } else {
+        for (var j = 0; j < lista.length; j++) {
+          html += tarjetaVehiculo(lista[j]);
+        }
+      }
+      html += '</div>';
+    }
+    document.getElementById('kanban').innerHTML = html;
+  }
+
+  function tarjetaVehiculo(t) {
+    var btns = '';
+    if (t.estado === 'cola') {
+      btns += '<button type="button" class="btn btn-sm btn-next" data-accion="lavado" data-id="' + t.id + '">🫧 Iniciar lavado</button>';
+    }
+    if (t.estado === 'lavado') {
+      btns += '<button type="button" class="btn btn-sm btn-back" data-accion="cola" data-id="' + t.id + '">← Volver</button>';
+      btns += '<button type="button" class="btn btn-sm btn-next" data-accion="listo" data-id="' + t.id + '">✨ Marcar listo</button>';
+    }
+    if (t.estado === 'listo') {
+      btns += '<button type="button" class="btn btn-sm btn-back" data-accion="lavado" data-id="' + t.id + '">← Volver</button>';
+      btns += '<button type="button" class="btn btn-sm btn-ok" data-accion="cobrar" data-id="' + t.id + '">💵 Cobrar ' + dinero(t.precio) + '</button>';
+    }
+    btns += '<button type="button" class="btn btn-sm btn-del" data-accion="borrar" data-id="' + t.id + '">✕</button>';
+
+    return '<div class="veh veh-' + t.estado + '" data-id="' + t.id + '">' +
+      '<div class="veh-head">' +
+      '<div class="veh-icon">' + iconoTipo(t.tipo) + '</div>' +
+      '<div><div class="placa">' + esc(t.placa) + '</div>' +
+      '<div class="info">' + esc(nombreServicio(t.servicioId)) + ' · ' + etiquetaTipo(t.tipo) + '</div></div></div>' +
+      '<div class="precio">' + dinero(t.precio) + '</div>' +
+      (t.notas ? '<div class="nota">📝 ' + esc(t.notas) + '</div>' : '') +
+      '<div class="veh-actions">' + btns + '</div></div>';
+  }
+
+  function moverEstado(idTrabajo, nuevoEstado) {
+    for (var i = 0; i < trabajos.length; i++) {
+      if (trabajos[i].id === idTrabajo) {
+        trabajos[i].estado = nuevoEstado;
+        guardar(KEY_JOBS, trabajos);
+        pintarCola();
+        pintarInicio();
+        toast('Actualizado: ' + etiquetaEstado(nuevoEstado));
+        return;
+      }
+    }
+  }
+
+  function borrarTrabajo(idTrabajo) {
+    if (!confirm('Eliminar este registro?')) return;
+    trabajos = trabajos.filter(function (t) { return t.id !== idTrabajo; });
+    guardar(KEY_JOBS, trabajos);
+    pintarCola();
+    pintarInicio();
+    toast('Eliminado');
+  }
+
+  // --- Cobro ---
+  function abrirCobro(idTrabajo) {
+    var t = null;
+    for (var i = 0; i < trabajos.length; i++) {
+      if (trabajos[i].id === idTrabajo) { t = trabajos[i]; break; }
+    }
+    if (!t) return;
+    cobrandoId = idTrabajo;
+    document.getElementById('modal-texto').textContent =
+      t.placa + ' — ' + nombreServicio(t.servicioId) + ' — ' + dinero(t.precio);
+    document.getElementById('modal-cobro').classList.add('show');
+  }
+
+  function cerrarCobro() {
+    cobrandoId = null;
+    document.getElementById('modal-cobro').classList.remove('show');
+  }
+
+  function confirmarCobro() {
+    if (!cobrandoId) return;
+    for (var i = 0; i < trabajos.length; i++) {
+      if (trabajos[i].id === cobrandoId) {
+        trabajos[i].estado = 'cobrado';
+        trabajos[i].cobradoEn = new Date().toISOString();
+        trabajos[i].metodoPago = document.getElementById('inp-pago').value;
+        guardar(KEY_JOBS, trabajos);
+        cerrarCobro();
+        pintarCola();
+        pintarInicio();
+        pintarHistorial();
+        toast('Cobro registrado');
+        return;
+      }
+    }
+  }
+
+  // --- Formulario nuevo ---
+  function llenarSelectServicios() {
+    var sel = document.getElementById('inp-servicio');
+    var html = '';
+    for (var i = 0; i < servicios.length; i++) {
+      html += '<option value="' + servicios[i].id + '">' +
+        esc(servicios[i].nombre) + ' (' + dinero(servicios[i].precio) + ')</option>';
+    }
+    sel.innerHTML = html;
+    actualizarPrecioForm();
+  }
+
+  function actualizarPrecioForm() {
+    var sid = document.getElementById('inp-servicio').value;
+    var tipo = document.getElementById('inp-tipo').value;
+    document.getElementById('inp-precio').textContent = dinero(calcularPrecio(sid, tipo));
+  }
+
+  // --- Historial ---
+  function pintarHistorial() {
+    var q = document.getElementById('inp-buscar').value.toLowerCase().trim();
+    var rows = trabajos.slice().sort(function (a, b) {
+      return new Date(b.creadoEn) - new Date(a.creadoEn);
+    });
+    if (q) {
+      rows = rows.filter(function (t) {
+        return t.placa.toLowerCase().indexOf(q) >= 0;
+      });
+    }
+    var html = '';
+    if (!rows.length) {
+      html = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:#8ba3c7">📭 Sin registros en el historial</td></tr>';
+    } else {
+      for (var i = 0; i < rows.length; i++) {
+        var t = rows[i];
+        html += '<tr>' +
+          '<td>' + fechaTexto(t.cobradoEn || t.creadoEn) + '</td>' +
+          '<td><strong>' + esc(t.placa) + '</strong></td>' +
+          '<td>' + esc(nombreServicio(t.servicioId)) + '</td>' +
+          '<td>' + dinero(t.precio) + '</td>' +
+          '<td><span class="tag ' + claseTag(t.estado) + '">' +
+          (t.estado === 'cobrado' ? 'Cobrado' : etiquetaEstado(t.estado)) + '</span></td></tr>';
+      }
+    }
+    document.getElementById('tabla-historial').innerHTML = html;
+  }
+
+  // --- Precios ---
+  function pintarPrecios() {
+    var html = '';
+    for (var i = 0; i < servicios.length; i++) {
+      html += '<div class="svc-row">' +
+        '<input type="text" data-idx="' + i + '" data-campo="nombre" value="' + esc(servicios[i].nombre) + '">' +
+        '<input type="number" data-idx="' + i + '" data-campo="precio" value="' + servicios[i].precio + '" min="0" step="500">' +
+        '</div>';
+    }
+    document.getElementById('lista-precios').innerHTML = html;
+  }
+
+  function guardarPreciosDesdeForm() {
+    var inputs = document.querySelectorAll('#lista-precios input');
+    var mapa = {};
+    for (var i = 0; i < inputs.length; i++) {
+      var inp = inputs[i];
+      var idx = inp.getAttribute('data-idx');
+      var campo = inp.getAttribute('data-campo');
+      if (!mapa[idx]) mapa[idx] = {};
+      mapa[idx][campo] = inp.value;
+    }
+    var nuevos = [];
+    for (var k = 0; k < servicios.length; k++) {
+      var m = mapa[k] || {};
+      nuevos.push({
+        id: servicios[k].id,
+        nombre: (m.nombre || servicios[k].nombre).trim() || 'Servicio',
+        precio: parseInt(m.precio, 10) || 0
+      });
+    }
+    servicios = nuevos;
+    guardar(KEY_SERVICES, servicios);
+    llenarSelectServicios();
+    toast('Precios guardados');
+  }
+
+  // --- Demo ---
+  function cargarDemo() {
+    var ahora = Date.now();
+    trabajos = [
+      { id: 'd1', placa: 'ABC123', tipo: 'auto', servicioId: 'basico', precio: 15000, estado: 'cola', notas: '', creadoEn: new Date(ahora - 600000).toISOString() },
+      { id: 'd2', placa: 'XYZ789', tipo: 'suv', servicioId: 'completo', precio: 30000, estado: 'lavado', notas: 'Manchas en puerta', creadoEn: new Date(ahora - 1200000).toISOString() },
+      { id: 'd3', placa: 'MOT55', tipo: 'moto', servicioId: 'basico', precio: 10500, estado: 'listo', notas: '', creadoEn: new Date(ahora - 1800000).toISOString() }
+    ];
+    guardar(KEY_JOBS, trabajos);
+    toast('Datos de demo cargados');
+    irTab('cola');
+  }
+
+  // --- Init ---
+  function iniciar() {
+    servicios = cargar(KEY_SERVICES, SERVICIOS_DEF.slice());
+    trabajos = cargar(KEY_JOBS, []);
+
+    document.getElementById('fecha-hoy').textContent = new Date().toLocaleDateString('es', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+
+    llenarSelectServicios();
+    pintarInicio();
+
+    document.getElementById('tabs').addEventListener('click', function (e) {
+      var btn = e.target.closest('.tab');
+      if (btn) irTab(btn.getAttribute('data-tab'));
+    });
+
+    document.getElementById('kanban').addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-accion]');
+      if (!btn) return;
+      var acc = btn.getAttribute('data-accion');
+      var tid = btn.getAttribute('data-id');
+      if (acc === 'borrar') borrarTrabajo(tid);
+      else if (acc === 'cobrar') abrirCobro(tid);
+      else moverEstado(tid, acc);
+    });
+
+    document.getElementById('form-nuevo').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var placa = document.getElementById('inp-placa').value.trim().toUpperCase();
+      if (!placa) {
+        toast('Escribe la placa');
+        return;
+      }
+      var tipo = document.getElementById('inp-tipo').value;
+      var sid = document.getElementById('inp-servicio').value;
+      var notas = document.getElementById('inp-notas').value.trim();
+      var precio = calcularPrecio(sid, tipo);
+
+      trabajos.push({
+        id: id(),
+        placa: placa,
+        tipo: tipo,
+        servicioId: sid,
+        precio: precio,
+        estado: 'cola',
+        notas: notas,
+        creadoEn: new Date().toISOString()
+      });
+      guardar(KEY_JOBS, trabajos);
+      document.getElementById('form-nuevo').reset();
+      llenarSelectServicios();
+      toast('Vehículo registrado: ' + placa);
+      irTab('cola');
+    });
+
+    document.getElementById('inp-tipo').addEventListener('change', actualizarPrecioForm);
+    document.getElementById('inp-servicio').addEventListener('change', actualizarPrecioForm);
+    document.getElementById('inp-buscar').addEventListener('input', pintarHistorial);
+    document.getElementById('btn-guardar-precios').addEventListener('click', guardarPreciosDesdeForm);
+    document.getElementById('btn-reset-precios').addEventListener('click', function () {
+      if (confirm('Restaurar precios predeterminados?')) {
+        servicios = SERVICIOS_DEF.slice();
+        guardar(KEY_SERVICES, servicios);
+        pintarPrecios();
+        llenarSelectServicios();
+        toast('Precios restaurados');
+      }
+    });
+    document.getElementById('btn-demo').addEventListener('click', cargarDemo);
+    document.getElementById('btn-cerrar-cobro').addEventListener('click', cerrarCobro);
+    document.getElementById('btn-confirmar-cobro').addEventListener('click', confirmarCobro);
+    document.getElementById('modal-cobro').addEventListener('click', function (e) {
+      if (e.target.id === 'modal-cobro') cerrarCobro();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciar);
+  } else {
+    iniciar();
+  }
+})();
+  </script>
+</body>
+</html>
